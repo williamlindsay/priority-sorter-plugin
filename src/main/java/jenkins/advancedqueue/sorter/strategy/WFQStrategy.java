@@ -24,7 +24,6 @@
 package jenkins.advancedqueue.sorter.strategy;
 
 import hudson.Extension;
-import jenkins.advancedqueue.strategy.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -56,12 +55,12 @@ public class WFQStrategy extends FQBaseStrategy {
 
 		@Override
 		public String getDisplayName() {
-			return Messages.SorterStrategy_WFQ_displayName();
+			return "Weighted Fair Queuing";
 		}
 
 		@Override
 		public String getShortName() {
-			return Messages.SorterStrategy_WFQ_shortName();
+			return "WFQ";
 		}
 	}
 }

@@ -50,7 +50,7 @@ public abstract class PriorityStrategy implements ExtensionPoint, Describable<Pr
 
 	/** 
 	 * Method that that return the priority that should be used for this {@link Item}, this method is only called id
-	 * {@link PriorityStrategy#isApplicable(Item)} returned true
+	 * isApplicable returned true
 	 * 
 	 * The caller garanties that the {@link Item#task} is a {@link Job}
 	 * 

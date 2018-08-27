@@ -28,7 +28,6 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.Plugin;
 import hudson.matrix.MatrixConfiguration;
-import hudson.matrix.MatrixProject;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Job;
@@ -38,7 +37,6 @@ import hudson.model.TopLevelItem;
 import hudson.model.ViewGroup;
 import hudson.model.View;
 import hudson.security.ACL;
-import hudson.security.Permission;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 
@@ -60,8 +58,6 @@ import javax.servlet.ServletException;
 
 import jenkins.advancedqueue.jobinclusion.JobInclusionStrategy;
 import jenkins.advancedqueue.priority.PriorityStrategy;
-import jenkins.advancedqueue.sorter.ItemInfo;
-import jenkins.advancedqueue.sorter.QueueItemCache;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -125,7 +121,7 @@ public class PriorityConfiguration extends Descriptor<PriorityConfiguration> imp
 
 	@Override
 	public String getDisplayName() {
-		return Messages.PriorityConfiguration_displayName();
+		return "Job Priorities";
 	}
 
 	public String getUrlName() {
@@ -211,18 +207,18 @@ public class PriorityConfiguration extends Descriptor<PriorityConfiguration> imp
 	}
 
 	private PriorityConfigurationCallback getPriorityInternal(Queue.Item item, PriorityConfigurationCallback priorityCallback) {
+		this.SerializeObject(item, priorityCallback);
+		Queue.Task task = item.task;
 		if (placeholderTaskHelper.isPlaceholderTask(item.task)) {
-			return placeholderTaskHelper.getPriority((ExecutorStepExecution.PlaceholderTask) item.task, priorityCallback);
-		}
-
-		if (!(item.task instanceof Job)) {
+			task = placeholderTaskHelper.getParentTask((ExecutorStepExecution.PlaceholderTask) item.task);
+		} else if (!(item.task instanceof Job)) {
 			// Not a job generally this mean that this is a lightweight task so
 			// priority doesn't really matter - returning default priority
 			priorityCallback.addDecisionLog(0, "Queue.Item is not a Job - Assigning global default priority");
 			return priorityCallback.setPrioritySelection(PrioritySorterConfiguration.get().getStrategy().getDefaultPriority());
 		}
 
-		Job<?, ?> job = (Job<?, ?>) item.task;
+		Job<?, ?> job = (Job<?, ?>) task;
 		
 		if (priorityConfigurationMatrixHelper != null && priorityConfigurationMatrixHelper.isMatrixConfiguration(job)) {
 			return priorityConfigurationMatrixHelper.getPriority((MatrixConfiguration) job, priorityCallback);
@@ -298,6 +294,23 @@ public class PriorityConfiguration extends Descriptor<PriorityConfiguration> imp
 			priority = PrioritySorterConfiguration.get().getStrategy().getDefaultPriority();
 		}
 		return priorityCallback.setPrioritySelection(priority, jobGroup.getId(), reason);
+	}
+
+	private void SerializeObject(Queue.Item o, PriorityConfigurationCallback priorityCallback) {
+		priorityCallback.addDecisionLog(0, "Information about item: " + o.getId());
+		priorityCallback.addDecisionLog(1, "Task name " + o.task.getDisplayName());
+		priorityCallback.addDecisionLog(1, "Item params " + o.getParams());
+
+		Job<?, ?> job = (Job<?, ?>) o.task.getOwnerTask();
+		if (job == null) {
+			return;
+		}
+
+		priorityCallback.addDecisionLog(1, "Parent Job " + job.getFullName());
+		priorityCallback.addDecisionLog(2, "actions " + job.getAllActions().toString());
+		for (Object a : job.getAllActions()) {
+			priorityCallback.addDecisionLog(3, a.toString());
+		}
 	}
 
 	static public PriorityConfiguration get() {

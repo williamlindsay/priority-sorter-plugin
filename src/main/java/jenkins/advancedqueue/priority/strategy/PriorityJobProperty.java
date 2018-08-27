@@ -24,7 +24,6 @@
 package jenkins.advancedqueue.priority.strategy;
 
 import hudson.Extension;
-import hudson.model.AbstractProject;
 import hudson.model.Descriptor.FormException;
 import hudson.model.Job;
 import hudson.model.JobProperty;
@@ -36,7 +35,6 @@ import java.util.logging.Logger;
 
 import jenkins.advancedqueue.JobGroup;
 import jenkins.advancedqueue.JobGroup.PriorityStrategyHolder;
-import jenkins.advancedqueue.Messages;
 import jenkins.advancedqueue.PriorityConfiguration;
 import jenkins.advancedqueue.PriorityConfigurationCallback;
 import jenkins.advancedqueue.PrioritySorterConfiguration;
@@ -106,7 +104,7 @@ public class PriorityJobProperty extends JobProperty<Job<?, ?>> {
 		
 		@Override
 		public String getDisplayName() {
-			return Messages.AdvancedQueueSorterJobProperty_displayName();
+			return "Job Priority";
 		}
 
 		public int getDefault() {

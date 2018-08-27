@@ -26,7 +26,6 @@ package jenkins.advancedqueue.sorter.strategy;
 import hudson.Extension;
 import hudson.model.Queue;
 import jenkins.advancedqueue.sorter.SorterStrategyCallback;
-import jenkins.advancedqueue.strategy.Messages;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -54,12 +53,12 @@ public class AbsoluteStrategy extends MultiBucketStrategy {
 
 		@Override
 		public String getDisplayName() {
-			return Messages.SorterStrategy_ABSOLUTE_displayName();
+			return "Absolute";
 		}
 
 		@Override
 		public String getShortName() {
-			return Messages.SorterStrategy_ABSOLUTE_shortName();
+			return "ABSOLUTE";
 		}
 	}
 }

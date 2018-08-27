@@ -28,7 +28,7 @@ import hudson.model.Descriptor;
 /**
  * Implements descriptor for {@link SorterStrategy}.
  * 
- * @author Oleg Nenashev <nenashev@synopsys.com>, Synopsys Inc.
+ * @author Oleg Nenashev, Synopsys Inc.
  * @since TODO
  */
 public abstract class SorterStrategyDescriptor extends Descriptor<SorterStrategy> {

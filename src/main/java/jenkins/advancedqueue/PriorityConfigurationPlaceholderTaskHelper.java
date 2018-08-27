@@ -17,11 +17,16 @@ class PriorityConfigurationPlaceholderTaskHelper {
     
 	boolean isPlaceholderTask(Queue.Task task) {
 		return isPlaceholderTaskUsed() && task instanceof ExecutorStepExecution.PlaceholderTask;
-	}
+    }
+    
+    @Nonnull
+    Queue.Task getParentTask(@Nonnull ExecutorStepExecution.PlaceholderTask task) {
+        return task.getOwnerTask();
+    }
 
     @Nonnull
     PriorityConfigurationCallback getPriority(@Nonnull ExecutorStepExecution.PlaceholderTask task, @Nonnull PriorityConfigurationCallback priorityCallback) {
-        Queue.Task ownerTask = task.getOwnerTask();
+        Queue.Task ownerTask = this.getParentTask(task);
         if (ownerTask instanceof Job<?, ?>) {
             Job<?, ?> job = (Job<?, ?>) ownerTask;
             ItemInfo itemInfo = QueueItemCache.get().getItem(job.getName());

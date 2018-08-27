@@ -39,7 +39,7 @@ import org.kohsuke.stapler.QueryParameter;
 /**
  * Implements a strategy with multiple buckets.
  * 
- * @author Oleg Nenashev <nenashev@synopsys.com>, Synopsys Inc.
+ * @author Oleg Nenashev, Synopsys Inc.
  * @since 2.0
  */
 public abstract class MultiBucketStrategy extends SorterStrategy {

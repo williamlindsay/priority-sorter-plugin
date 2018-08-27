@@ -42,7 +42,7 @@ import jenkins.advancedqueue.priority.PriorityStrategy;
  */
 public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, SorterStrategyCallback, Comparable<ItemInfo> {
 
-	private int itemId;
+	private long itemId;
 
 	private long inQueueSince;
 	
@@ -63,7 +63,7 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 	private List<String> decisionLog = new ArrayList<String>(10);
 
 	ItemInfo(Item item) {
-		this.itemId = item.id;
+		this.itemId = item.getId();
 		this.inQueueSince = item.getInQueueSince();
 		this.jobName = item.task.getName();
 		this.itemStatus = ItemStatus.WAITING;
@@ -109,7 +109,7 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 		logBlockedItem(this);
 	}
 
-	public int getItemId() {
+	public long getItemId() {
 		return itemId;
 	}
 
@@ -151,7 +151,7 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 	public int compareTo(ItemInfo o) {
 		if(this.getWeight() == o.getWeight()) {
 			if(this.getSortableInQueueSince() == o.getSortableInQueueSince()) {
-				return new Integer(this.getItemId()).compareTo(o.getItemId());
+				return new Long(this.getItemId()).compareTo(o.getItemId());
 			}
 			return new Long(this.getSortableInQueueSince()).compareTo(o.getSortableInQueueSince());
 		}

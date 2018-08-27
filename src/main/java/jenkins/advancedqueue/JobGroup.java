@@ -196,6 +196,7 @@ public class JobGroup {
 	/**
 	 * Creates a Job Group from JSON object.
 	 *
+	 * @param req the req
 	 * @param jobGroupObject JSON object with class description
 	 * @param id ID of the item to be created
 	 * @return created group
