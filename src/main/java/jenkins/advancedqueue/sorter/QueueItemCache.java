@@ -60,6 +60,8 @@ public class QueueItemCache {
 	private Map<Long, ItemInfo> item2info = new HashMap<Long, ItemInfo>();
 	// Keeps track of the last started item of the Job
 	private Map<String, ItemInfo> jobName2info = new HashMap<String, ItemInfo>();
+	// Keeps track of the last started item of the run
+	private Map<String, ItemInfo> runId2info = new HashMap<String, ItemInfo>();
 
 	private QueueItemCache() {
 	}
@@ -87,16 +89,36 @@ public class QueueItemCache {
 		return jobName2info.get(jobName);
 	}
 
+	/**
+	 * Get the ItemInfo for the last knows start of this runId
+	 * 
+	 * @param runId the run id ex: test#5
+	 * @return the {@link ItemInfo} for the last know start of the Job.
+         *         Can be {@code null} if job didn't run yet
+	 */
+	@CheckForNull
+	synchronized public ItemInfo getItemByRunId(String runId) {
+		return runId2info.get(runId);
+	}
+
 	synchronized public ItemInfo addItem(ItemInfo itemInfo) {
 		Long itemId = new Long(itemInfo.getItemId());
 		item2info.put(itemId, itemInfo);
 		jobName2info.put(itemInfo.getJobName(), itemInfo);
+		if (itemInfo.getRunId() != null) {
+			runId2info.put(itemInfo.getRunId(), itemInfo);
+		}
 		return itemInfo;
 	}
 
-        @CheckForNull
+	@CheckForNull
 	synchronized public ItemInfo removeItem(Long itemId) {
-		return item2info.remove(itemId);
+		ItemInfo r = item2info.remove(itemId);
+		// XXX: How do I approach this part
+		// if (r.getRunId() != null) {
+		// 	runId2info.remove(r.getRunId());
+		// }
+		return r;
 	}
 
 	/**

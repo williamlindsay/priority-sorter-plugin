@@ -75,7 +75,7 @@ public class RunExclusiveThrottler {
 
 		@Override
 		public CauseOfBlockage canRun(Item item) {
-			if (exclusiveJobs.size() > 0) {
+			if (!exclusiveJobs.isEmpty()) {
 				if (QueueItemCache.get().getItem(item.getId()).getJobGroupId() != exclusiveJobGroupId) {
 					return new RunExclusiveMode();
 				}

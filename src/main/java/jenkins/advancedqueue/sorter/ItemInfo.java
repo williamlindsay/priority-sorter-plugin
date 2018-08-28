@@ -29,6 +29,7 @@ import static jenkins.advancedqueue.ItemTransitionLogger.logBuilableItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import hudson.model.Job;
 import hudson.model.Queue.Item;
 import jenkins.advancedqueue.DecisionLogger;
 import jenkins.advancedqueue.PriorityConfigurationCallback;
@@ -59,6 +60,8 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 	private int priority;
 
 	private ItemStatus itemStatus;
+
+	private String runId;
 	
 	private List<String> decisionLog = new ArrayList<String>(10);
 
@@ -67,6 +70,10 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 		this.inQueueSince = item.getInQueueSince();
 		this.jobName = item.task.getName();
 		this.itemStatus = ItemStatus.WAITING;
+		if (item.task instanceof Job<?, ?>) {
+			Job<?, ?> job = (Job<?, ?>) item.task;
+			this.runId = String.format("%d",job.getNextBuildNumber());
+		}
 	}
 
 	public PriorityConfigurationCallback setPrioritySelection(int priority, int jobGroupId, PriorityStrategy reason) {
@@ -134,6 +141,10 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 
 	public String getJobName() {
 		return jobName;
+	}
+
+	public String getRunId() {
+		return runId;
 	}
 
 	public float getWeight() {
