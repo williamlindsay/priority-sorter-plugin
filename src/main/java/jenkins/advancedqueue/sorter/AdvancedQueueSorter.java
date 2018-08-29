@@ -141,7 +141,7 @@ public class AdvancedQueueSorter extends QueueSorter {
 	}
 
 	public void onLeft(@Nonnull LeftItem li) {
-		ItemInfo itemInfo = QueueItemCache.get().removeItem(li.getId());
+		ItemInfo itemInfo = QueueItemCache.get().removeItem(li);
 		if (itemInfo == null) {
 			LOGGER.log(Level.WARNING, "Received the onLeft() notification for the item from outside the QueueItemCache: {0}. " +
 					"Cannot process this item, Priority Sorter Strategy will not be invoked", li);

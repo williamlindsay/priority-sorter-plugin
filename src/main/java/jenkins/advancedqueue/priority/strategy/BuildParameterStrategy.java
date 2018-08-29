@@ -66,9 +66,8 @@ public class BuildParameterStrategy extends AbstractDynamicPriorityStrategy {
 		for (ParametersAction action : actions) {
 			StringParameterValue parameterValue = (StringParameterValue) action.getParameter(parameterName);
 			if (parameterValue != null) {
-				String value = parameterValue.value;
 				try {
-					return Integer.parseInt(value);
+					return Integer.parseInt((String) parameterValue.getValue());
 				} catch (NumberFormatException e) {
 					// continue
 				}

@@ -29,6 +29,8 @@ import static jenkins.advancedqueue.ItemTransitionLogger.logBuilableItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution;
+
 import hudson.model.Job;
 import hudson.model.Queue.Item;
 import jenkins.advancedqueue.DecisionLogger;
@@ -73,6 +75,9 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 		if (item.task instanceof Job<?, ?>) {
 			Job<?, ?> job = (Job<?, ?>) item.task;
 			this.runId = String.format("%d",job.getNextBuildNumber());
+		} else if (item.task instanceof ExecutorStepExecution.PlaceholderTask) {
+			ExecutorStepExecution.PlaceholderTask task = (ExecutorStepExecution.PlaceholderTask) item.task;
+			this.runId = task.run().getId();
 		}
 	}
 
@@ -175,8 +180,8 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 		if(priorityStrategy != null) {
 			reason = priorityStrategy.getDescriptor().getDisplayName();
 		}
-		return String.format("Id: %s, JobName: %s, jobGroupId: %s, reason: %s, priority: %s, weight: %s, status: %s", itemId,
-				jobName, jobGroupId, reason, priority, weight, itemStatus);
+		return String.format("Id: %s, JobName: %s, jobGroupId: %s, reason: %s, priority: %s, weight: %s, status: %s, runId: %s", itemId,
+				jobName, jobGroupId, reason, priority, weight, itemStatus, runId);
 	}
 	
 	public String getDescisionLog() {

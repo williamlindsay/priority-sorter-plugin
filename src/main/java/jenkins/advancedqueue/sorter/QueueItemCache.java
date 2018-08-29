@@ -23,6 +23,7 @@
  */
 package jenkins.advancedqueue.sorter;
 
+import hudson.model.Queue;
 import hudson.model.Queue.BlockedItem;
 import hudson.model.Queue.BuildableItem;
 
@@ -62,6 +63,8 @@ public class QueueItemCache {
 	private Map<String, ItemInfo> jobName2info = new HashMap<String, ItemInfo>();
 	// Keeps track of the last started item of the run
 	private Map<String, ItemInfo> runId2info = new HashMap<String, ItemInfo>();
+	// Keep track of the run ids that just left the queue to be cleaned up later
+	private Map<String, Boolean> removeRunIds = new HashMap<String, Boolean>();
 
 	private QueueItemCache() {
 	}
@@ -105,20 +108,46 @@ public class QueueItemCache {
 		Long itemId = new Long(itemInfo.getItemId());
 		item2info.put(itemId, itemInfo);
 		jobName2info.put(itemInfo.getJobName(), itemInfo);
-		if (itemInfo.getRunId() != null) {
-			runId2info.put(itemInfo.getRunId(), itemInfo);
-		}
+		addRunId(itemInfo);
 		return itemInfo;
 	}
 
 	@CheckForNull
-	synchronized public ItemInfo removeItem(Long itemId) {
-		ItemInfo r = item2info.remove(itemId);
-		// XXX: How do I approach this part
-		// if (r.getRunId() != null) {
-		// 	runId2info.remove(r.getRunId());
-		// }
-		return r;
+	synchronized public ItemInfo removeItem(Queue.Item item) {
+		ItemInfo itemInfo = item2info.remove(item.getId());
+		removeRunId(itemInfo);
+		return itemInfo;
+	}
+
+	synchronized private void addRunId(ItemInfo itemInfo) {
+		String runId = itemInfo.getRunId();
+		if (runId == null) {
+			return;
+		}
+
+		if (runId2info.get(runId) == null) {
+			runId2info.put(runId, itemInfo);
+		}
+
+		removeRunIds.put(runId, false);
+	}
+
+	synchronized private void removeRunId(ItemInfo itemInfo) {
+		String runId = itemInfo.getRunId();
+		if (runId == null) {
+			return;
+		}
+
+		for (String id : removeRunIds.keySet()) {
+			if (!removeRunIds.get(id)) {
+				continue;
+			}
+
+			removeRunIds.remove(id);
+			runId2info.remove(id);
+		}
+
+		removeRunIds.put(runId, true);
 	}
 
 	/**
