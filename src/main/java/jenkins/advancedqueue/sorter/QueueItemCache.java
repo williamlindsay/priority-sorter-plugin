@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 
@@ -138,7 +139,8 @@ public class QueueItemCache {
 			return;
 		}
 
-		for (String id : removeRunIds.keySet()) {
+		String[] keys = removeRunIds.keySet().toArray(new String[removeRunIds.size()]);
+		for (String id : keys) {
 			if (!removeRunIds.get(id)) {
 				continue;
 			}

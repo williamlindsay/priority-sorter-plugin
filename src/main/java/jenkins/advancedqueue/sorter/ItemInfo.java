@@ -32,6 +32,7 @@ import java.util.List;
 import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution;
 
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.model.Queue.Item;
 import jenkins.advancedqueue.DecisionLogger;
 import jenkins.advancedqueue.PriorityConfigurationCallback;
@@ -77,7 +78,10 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 			this.runId = String.format("%d",job.getNextBuildNumber());
 		} else if (item.task instanceof ExecutorStepExecution.PlaceholderTask) {
 			ExecutorStepExecution.PlaceholderTask task = (ExecutorStepExecution.PlaceholderTask) item.task;
-			this.runId = task.run().getId();
+			Run run = task.run();
+			if (run != null) {
+				this.runId = run.getId();
+			}
 		}
 	}
 
