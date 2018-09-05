@@ -25,7 +25,7 @@ package jenkins.advancedqueue.priority.strategy;
 
 import hudson.Extension;
 import hudson.model.Job;
-import hudson.model.Queue;
+import jenkins.advancedqueue.priority.strategyitems.IStrategyItem;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -64,8 +64,8 @@ public class HealthStrategy extends AbstractStaticPriorityStrategy {
 	}
 
 	@Override
-	public boolean isApplicable(Queue.Item item) {
-		Job<?,?> job = (Job<?,?>) item.task;
+	public boolean isApplicable(IStrategyItem item) {
+		Job<?,?> job = (Job<?,?>) item.getTask();
 		if(!job.getBuilds().iterator().hasNext()) {
 			return false;
 		}

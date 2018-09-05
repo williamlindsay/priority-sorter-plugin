@@ -3,6 +3,7 @@ package jenkins.advancedqueue;
 import hudson.Plugin;
 import hudson.model.Job;
 import hudson.model.Queue;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -20,11 +21,6 @@ class PriorityConfigurationPlaceholderTaskHelper {
     }
 
     private ItemInfo getItemInfo(@Nonnull ExecutorStepExecution.PlaceholderTask task, Queue.Task ownerTask) {
-        ItemInfo r = QueueItemCache.get().getItemByRunId(task.run().getId());
-        if (r != null) {
-            return r;
-        }
-
         Job<?, ?> job = (Job<?, ?>) ownerTask;
         return QueueItemCache.get().getItem(job.getName());
     }

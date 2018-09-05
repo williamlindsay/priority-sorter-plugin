@@ -25,16 +25,7 @@
 			 					<f:dropdownDescriptorSelector title="Jobs to include" field="jobGroupStrategy" descriptors="${it.jobInclusionStrategyDescriptors}"/>
 		            		</f:entry>
 		            		<f:entry title="Priority">
-			 					<select name="priority">
-			                		<j:forEach var="priority" items="${it.priorities}">
-			                			<j:if test="${priority.value == jobGroup.priority}">
-			                				<f:option value="${priority.value}" selected="true">${priority.name}</f:option>
-			                			</j:if>
-			                			<j:if test="${priority.value != jobGroup.priority}">
-			                    			<f:option value="${priority.value}">${priority.name}</f:option>
-			                    		</j:if>															
-			                		</j:forEach>
-			            		</select>
+								<f:textbox name="priority" value="${jobGroup.priority}" default="0"/>
 							</f:entry>
 							<f:entry title="Run Exclusive (experimental)">
 	    						<f:checkbox name="runExclusive" value="${jobGroup.runExclusive}" checked="${jobGroup.runExclusive}"/>

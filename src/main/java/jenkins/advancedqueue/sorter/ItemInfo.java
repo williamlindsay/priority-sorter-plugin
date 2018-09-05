@@ -29,10 +29,6 @@ import static jenkins.advancedqueue.ItemTransitionLogger.logBuilableItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution;
-
-import hudson.model.Job;
-import hudson.model.Run;
 import hudson.model.Queue.Item;
 import jenkins.advancedqueue.DecisionLogger;
 import jenkins.advancedqueue.PriorityConfigurationCallback;
@@ -63,8 +59,6 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 	private int priority;
 
 	private ItemStatus itemStatus;
-
-	private String runId;
 	
 	private List<String> decisionLog = new ArrayList<String>(10);
 
@@ -73,16 +67,6 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 		this.inQueueSince = item.getInQueueSince();
 		this.jobName = item.task.getName();
 		this.itemStatus = ItemStatus.WAITING;
-		if (item.task instanceof Job<?, ?>) {
-			Job<?, ?> job = (Job<?, ?>) item.task;
-			this.runId = String.format("%d",job.getNextBuildNumber());
-		} else if (item.task instanceof ExecutorStepExecution.PlaceholderTask) {
-			ExecutorStepExecution.PlaceholderTask task = (ExecutorStepExecution.PlaceholderTask) item.task;
-			Run run = task.run();
-			if (run != null) {
-				this.runId = run.getId();
-			}
-		}
 	}
 
 	public PriorityConfigurationCallback setPrioritySelection(int priority, int jobGroupId, PriorityStrategy reason) {
@@ -152,10 +136,6 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 		return jobName;
 	}
 
-	public String getRunId() {
-		return runId;
-	}
-
 	public float getWeight() {
 		return weight;
 	}
@@ -184,8 +164,8 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 		if(priorityStrategy != null) {
 			reason = priorityStrategy.getDescriptor().getDisplayName();
 		}
-		return String.format("Id: %s, JobName: %s, jobGroupId: %s, reason: %s, priority: %s, weight: %s, status: %s, runId: %s", itemId,
-				jobName, jobGroupId, reason, priority, weight, itemStatus, runId);
+		return String.format("Id: %s, JobName: %s, jobGroupId: %s, reason: %s, priority: %s, weight: %s, status: %s", itemId,
+				jobName, jobGroupId, reason, priority, weight, itemStatus);
 	}
 	
 	public String getDescisionLog() {

@@ -25,10 +25,9 @@ package jenkins.advancedqueue.priority.strategy;
 
 import hudson.Extension;
 import hudson.model.Job;
-import hudson.model.Queue;
-import hudson.model.Queue.Item;
 import javax.annotation.CheckForNull;
 import jenkins.advancedqueue.PrioritySorterConfiguration;
+import jenkins.advancedqueue.priority.strategyitems.IStrategyItem;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -52,9 +51,9 @@ public class JobPropertyStrategy extends AbstractDynamicPriorityStrategy {
 	}
 	
 	@CheckForNull
-	private Integer getPriorityInternal(Queue.Item item) {
-		if(item.task instanceof Job<?, ?>) {
-			Job<?, ?> job = (Job<?, ?>) item.task;
+	private Integer getPriorityInternal(IStrategyItem item) {
+		if(item.getTask() instanceof Job<?, ?>) {
+			Job<?, ?> job = (Job<?, ?>) item.getTask();
 			PriorityJobProperty priorityProperty = job.getProperty(PriorityJobProperty.class);
 			if (priorityProperty != null && priorityProperty.getUseJobPriority()) {
 				return priorityProperty.priority;
@@ -64,12 +63,12 @@ public class JobPropertyStrategy extends AbstractDynamicPriorityStrategy {
 	}
 
 	@Override
-	public boolean isApplicable(Queue.Item item) {
+	public boolean isApplicable(IStrategyItem item) {
 		return getPriorityInternal(item) != null;
 	}
 
 	@Override
-	public int getPriority(Item item) {
+	public int getPriority(IStrategyItem item) {
 		final Integer p = getPriorityInternal(item);
 		return p != null ? p : PrioritySorterConfiguration.get().getStrategy().getDefaultPriority();
 	}

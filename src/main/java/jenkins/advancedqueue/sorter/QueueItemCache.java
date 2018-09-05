@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 
@@ -48,7 +47,7 @@ public class QueueItemCache {
 
 	private final static Logger LOGGER = Logger.getLogger(QueueItemCache.class.getName());
 
-	static private QueueItemCache queueItemCache = null;
+	static private QueueItemCache queueItemCache = null;	
 
 	static {
 		queueItemCache = new QueueItemCache();
@@ -62,10 +61,6 @@ public class QueueItemCache {
 	private Map<Long, ItemInfo> item2info = new HashMap<Long, ItemInfo>();
 	// Keeps track of the last started item of the Job
 	private Map<String, ItemInfo> jobName2info = new HashMap<String, ItemInfo>();
-	// Keeps track of the last started item of the run
-	private Map<String, ItemInfo> runId2info = new HashMap<String, ItemInfo>();
-	// Keep track of the run ids that just left the queue to be cleaned up later
-	private Map<String, Boolean> removeRunIds = new HashMap<String, Boolean>();
 
 	private QueueItemCache() {
 	}
@@ -93,63 +88,16 @@ public class QueueItemCache {
 		return jobName2info.get(jobName);
 	}
 
-	/**
-	 * Get the ItemInfo for the last knows start of this runId
-	 * 
-	 * @param runId the run id ex: test#5
-	 * @return the {@link ItemInfo} for the last know start of the Job.
-         *         Can be {@code null} if job didn't run yet
-	 */
-	@CheckForNull
-	synchronized public ItemInfo getItemByRunId(String runId) {
-		return runId2info.get(runId);
-	}
-
 	synchronized public ItemInfo addItem(ItemInfo itemInfo) {
 		Long itemId = new Long(itemInfo.getItemId());
 		item2info.put(itemId, itemInfo);
 		jobName2info.put(itemInfo.getJobName(), itemInfo);
-		addRunId(itemInfo);
 		return itemInfo;
 	}
 
 	@CheckForNull
 	synchronized public ItemInfo removeItem(Queue.Item item) {
-		ItemInfo itemInfo = item2info.remove(item.getId());
-		removeRunId(itemInfo);
-		return itemInfo;
-	}
-
-	synchronized private void addRunId(ItemInfo itemInfo) {
-		String runId = itemInfo.getRunId();
-		if (runId == null) {
-			return;
-		}
-
-		if (runId2info.get(runId) == null) {
-			runId2info.put(runId, itemInfo);
-		}
-
-		removeRunIds.put(runId, false);
-	}
-
-	synchronized private void removeRunId(ItemInfo itemInfo) {
-		String runId = itemInfo.getRunId();
-		if (runId == null) {
-			return;
-		}
-
-		String[] keys = removeRunIds.keySet().toArray(new String[removeRunIds.size()]);
-		for (String id : keys) {
-			if (!removeRunIds.get(id)) {
-				continue;
-			}
-
-			removeRunIds.remove(id);
-			runId2info.remove(id);
-		}
-
-		removeRunIds.put(runId, true);
+		return item2info.remove(item.getId());
 	}
 
 	/**

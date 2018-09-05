@@ -25,13 +25,13 @@ package jenkins.advancedqueue.priority.strategy;
 
 import hudson.Extension;
 import hudson.model.ParametersAction;
-import hudson.model.Queue;
 import hudson.model.StringParameterValue;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import jenkins.advancedqueue.PrioritySorterConfiguration;
+import jenkins.advancedqueue.priority.strategyitems.IStrategyItem;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -61,7 +61,7 @@ public class BuildParameterStrategy extends AbstractDynamicPriorityStrategy {
 	}
 
 	@CheckForNull
-	private Integer getPriorityInternal(@Nonnull Queue.Item item) {
+	private Integer getPriorityInternal(@Nonnull IStrategyItem item) {
 		List<ParametersAction> actions = item.getActions(ParametersAction.class);
 		for (ParametersAction action : actions) {
 			StringParameterValue parameterValue = (StringParameterValue) action.getParameter(parameterName);
@@ -81,13 +81,13 @@ public class BuildParameterStrategy extends AbstractDynamicPriorityStrategy {
 	 * @param item Queue item
 	 * @return Priority if it can be determined. Default priority otherwise
 	 */
-	public int getPriority(@Nonnull Queue.Item item) {
+	public int getPriority(@Nonnull IStrategyItem item) {
 		final Integer p = getPriorityInternal(item);
 		return p != null ? p : PrioritySorterConfiguration.get().getStrategy().getDefaultPriority();
 	}
 
 	@Override
-	public boolean isApplicable(@Nonnull Queue.Item item) {
+	public boolean isApplicable(@Nonnull IStrategyItem item) {
 		return getPriorityInternal(item) != null;
 	}
 }

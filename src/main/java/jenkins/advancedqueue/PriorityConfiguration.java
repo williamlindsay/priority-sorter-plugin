@@ -33,6 +33,7 @@ import hudson.model.Descriptor;
 import hudson.model.Job;
 import hudson.model.Queue;
 import hudson.model.RootAction;
+import hudson.model.Run;
 import hudson.model.TopLevelItem;
 import hudson.model.ViewGroup;
 import hudson.model.View;
@@ -58,6 +59,9 @@ import javax.servlet.ServletException;
 
 import jenkins.advancedqueue.jobinclusion.JobInclusionStrategy;
 import jenkins.advancedqueue.priority.PriorityStrategy;
+import jenkins.advancedqueue.priority.strategyitems.IStrategyItem;
+import jenkins.advancedqueue.priority.strategyitems.PlaceholderItemStrategyItem;
+import jenkins.advancedqueue.priority.strategyitems.QueueItemStrategyItem;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -206,18 +210,25 @@ public class PriorityConfiguration extends Descriptor<PriorityConfiguration> imp
 		}
 	}
 
-	private PriorityConfigurationCallback getPriorityInternal(Queue.Item item, PriorityConfigurationCallback priorityCallback) {
-		if (placeholderTaskHelper.isPlaceholderTask(item.task)) {
-			return placeholderTaskHelper.getPriority((ExecutorStepExecution.PlaceholderTask) item.task, priorityCallback);
+	private PriorityConfigurationCallback getPriorityInternal(Queue.Item i, PriorityConfigurationCallback priorityCallback) {
+		IStrategyItem item = new QueueItemStrategyItem(i);
+		if (placeholderTaskHelper.isPlaceholderTask(i.task)) {
+			ExecutorStepExecution.PlaceholderTask placeholderTask = (ExecutorStepExecution.PlaceholderTask) i.task;
+			Run run = placeholderTask.run();
+			if (run != null) {
+				item = new PlaceholderItemStrategyItem(placeholderTask);
+			} else {
+				return placeholderTaskHelper.getPriority(placeholderTask, priorityCallback);
+			}
 		} 
-		if (!(item.task instanceof Job)) {
+		if (!(item.getTask() instanceof Job)) {
 			// Not a job generally this mean that this is a lightweight task so
 			// priority doesn't really matter - returning default priority
 			priorityCallback.addDecisionLog(0, "Queue.Item is not a Job - Assigning global default priority");
 			return priorityCallback.setPrioritySelection(PrioritySorterConfiguration.get().getStrategy().getDefaultPriority());
 		}
 
-		Job<?, ?> job = (Job<?, ?>) item.task;
+		Job<?, ?> job = (Job<?, ?>) item.getTask();
 		
 		if (priorityConfigurationMatrixHelper != null && priorityConfigurationMatrixHelper.isMatrixConfiguration(job)) {
 			return priorityConfigurationMatrixHelper.getPriority((MatrixConfiguration) job, priorityCallback);
@@ -266,7 +277,7 @@ public class PriorityConfiguration extends Descriptor<PriorityConfiguration> imp
 		return false;
 	}
 	
-	private PriorityConfigurationCallback getPriorityForJobGroup(PriorityConfigurationCallback priorityCallback, JobGroup jobGroup, Queue.Item item) {
+	private PriorityConfigurationCallback getPriorityForJobGroup(PriorityConfigurationCallback priorityCallback, JobGroup jobGroup, IStrategyItem item) {
 		int priority = jobGroup.getPriority();
 		PriorityStrategy reason = null;
 		if (jobGroup.isUsePriorityStrategies()) {

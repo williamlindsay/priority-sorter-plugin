@@ -1,11 +1,11 @@
 package jenkins.advancedqueue.priority.strategy;
 
 import hudson.model.Descriptor;
-import hudson.model.Queue;
 import hudson.util.ListBoxModel;
 import jenkins.advancedqueue.PriorityCalculationsUtil;
 import jenkins.advancedqueue.PrioritySorterConfiguration;
 import jenkins.advancedqueue.priority.PriorityStrategy;
+import jenkins.advancedqueue.priority.strategyitems.IStrategyItem;
 import jenkins.model.Jenkins;
 
 abstract public class AbstractStaticPriorityStrategy extends PriorityStrategy {
@@ -52,7 +52,7 @@ abstract public class AbstractStaticPriorityStrategy extends PriorityStrategy {
 	}
 
 	@Override
-	public int getPriority(Queue.Item item) {
+	public int getPriority(IStrategyItem item) {
 		return priority;
 	}
 

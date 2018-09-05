@@ -26,7 +26,7 @@ package jenkins.advancedqueue.priority.strategy;
 import hudson.Extension;
 import hudson.model.Cause;
 import hudson.model.Cause.UserIdCause;
-import hudson.model.Queue;
+import jenkins.advancedqueue.priority.strategyitems.IStrategyItem;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class UserIdCauseStrategy extends AbstractStaticPriorityStrategy {
 	}
 
 	@Override
-	public boolean isApplicable(Queue.Item item) {
+	public boolean isApplicable(IStrategyItem item) {
 		List<Cause> causes = item.getCauses();
 		for (Cause cause : causes) {
 			if (cause.getClass() == UserIdCause.class) {
